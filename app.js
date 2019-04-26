@@ -1,7 +1,7 @@
 const Express = require("express");
 const BodyParser = require("body-parser");
 const route = require('./routes/route');
-const errorhandler = require(controllers/errorhandler)
+const errorhandler = require('./controllers/errorhandler')
 var app = Express(); 
  
 app.use(BodyParser.json());

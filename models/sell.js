@@ -8,10 +8,10 @@ exports.sellSchema = {
             properties:{
                 description:'string',
                 price: 'string',
-                avaliable: Boolean
+                quanity: 'integer'
             }
         },
-        item: {
+        itemno: {
             type: "string"
         },
         user: {

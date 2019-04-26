@@ -10,7 +10,7 @@ MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) =
     }         
     database = client.db(DATABASE_NAME);
     collection = database.collection("SELL");
-    console.log("Connected to `" + DATABASE_NAME + "`!");
+    console.log("Connected to `" + DATABASE_NAME + ".SELL`!");
 }); 
 
 
@@ -32,7 +32,7 @@ exports.addsell = function (req,res) {
 
 
 exports.editsell = function (req, res) {
-    collection.findOneAndUpdate({},{},{}, function(err){
+    collection.findOneAndUpdate({item:req.body.item,user:req.body.user},{$set:req.body},{}, function(err){
         if(!err){
             res.status(201).send({"status": 201, "description": "Data updated successfully"})
         }
@@ -40,7 +40,7 @@ exports.editsell = function (req, res) {
 }
 
 exports.rmsell = function (req,res) {
-    collection.deleteOne({}, function(err){
+    collection.deleteOne({item:req.body.item,user:req.body.user}, function(err){
         if(!err){
             res.status(201).send({"status": 201, "description": "Data removed successfully"})
         }
