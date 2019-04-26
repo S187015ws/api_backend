@@ -13,4 +13,4 @@ route.put('/editsell',sell_controller)
 route.delete('/rmcd',cd_controller)
 route.delete('/rmsell',sell_controller)
 
-module.exports = route
+module.exports = route 
