@@ -1,17 +1,30 @@
-const MongoClient = require("mongodb").MongoClient;
-const ObjectId = require("mongodb").ObjectID;
-const CONNECTION_URL = "mongodb+srv://304CEMe:123abc@cluster0-rmfhf.azure.mongodb.net/test?retryWrites=true";
-const DATABASE_NAME = "CDDB"; 
-var database, collection
+const db = require('./database.js');
+const User = db.user;
+const Sell = db.sell;
 
-MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
-    if(error) {
-        throw error;         
-    }         
-    database = client.db(DATABASE_NAME);
-    collection = database.collection("SELL");
-    console.log("Connected to `" + DATABASE_NAME + ".SELL`!");
-}); 
+
+exports.selllist = function(req, res, next){
+    aCdlist()
+        .then(cds => res.json(cds))
+        .then(console.log('Operated get Cd List'))
+        .catch(err => next(err));
+}
+
+async function aCdlist(){      
+    return await Cd.find()
+}
+
+
+exports.cdlist = function(req, res, next){
+    aCdlist()
+        .then(cds => res.json(cds))
+        .then(console.log('Operated get Cd List'))
+        .catch(err => next(err));
+}
+
+async function aCdlist(){      
+    return await Cd.find()
+}
 
 
 exports.selling = function (req,res) {
@@ -19,9 +32,9 @@ exports.selling = function (req,res) {
     if(!err)
         res.send(docs);
     })
-}
-
-
+} 
+      
+    
 exports.addsell = function (req,res) {
     collection.insertOne(req.body, function(err) {
         if(!err){

@@ -1,55 +1,63 @@
-const MongoClient = require("mongodb").MongoClient;
-const ObjectId = require("mongodb").ObjectID;
-const CONNECTION_URL = "mongodb+srv://304CEMe:123abc@cluster0-rmfhf.azure.mongodb.net/test?retryWrites=true";
-const DATABASE_NAME = "CDDB"; 
-var database, collection
+const db = require('./database.js');
+const Cd = db.cd;
 
 
-MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
-    if(error) {
-        throw error;         
-    }         
-    database = client.db(DATABASE_NAME);
-    collection = database.collection("CD");
-    console.log("Connected to `" + DATABASE_NAME + ".CD`!");
-}); 
-
-exports.cdlist = function (req,res) {
-    collection.find().toArray(function(err, docs){
-    if(!err){
-        res.send(docs);
-    } 
-    })
+exports.cdlist = function(req, res, next){
+    aCdlist()
+        .then(cds => res.json(cds))
+        .then(console.log('Operated get Cd List'))
+        .catch(err => next(err));
 }
 
-
-exports.addcd = function (req,res) {
-    collection.insertOne(req.body, function(err) {
-        if(!err){
-            res.status(201).send({"status": 201, "description": "Data input successfully"})
-        }
-    })
+async function aCdlist(){      
+    return await Cd.find()
 }
 
-
-exports.editcd = function (req, res) {
-    collection.findOneAndUpdate({no: req.body.no},{$set: req.body},{}, function(err){
-        if(!err){
-            res.status(201).send({"status": 201, "description": "Data updated successfully"})
-        }
-    })
+exports.addcd = function (req,res, next) {
+    aAddcd(req.body)
+        .then(() => res.json({}))
+        .then(console.log('New CD added'))
+        .catch(err => next(err));
 }
 
-exports.rmcd = function (req,res) {
-
-    collection.find({no: req.body.no}, function(err){
-        if(!err){
-            collection.deleteOne({no: req.body.no}, function(err){
-                if(!err){
-                    res.status(201).send({"status": 201, "description": "Data removed successfully"})
-                }
-            })
-        }
-    })
-    
+async function aAddcd(Param){
+    if (await Cd.findOne({ title: Param.title })) {
+        throw 'This CD is already created.';
+    }
+    await Cd.save();
 }
+
+exports.editcd = function (req, res, next) {
+    aUpdate(req.params.id, req.body)
+        .then(() => res.json({}))
+        .then(console.log('CD update is completed!'))
+        .catch(err => next(err));
+}
+
+async function findCdByID(id){
+    return await Cd.findById(id);
+}
+
+async function aUpdate (id, Param){
+    const cd = await findCdByID(id);
+
+    if(!cd) throw 'CD not found';
+    if(cd.title !== Param.title && await Cd.findOne({title: Param.title})){
+        throw 'This CD is already created.'
+    }
+
+    Object.assign(cd, Param);
+
+    await Cd.save();
+}
+exports.rmcd = function (req,res,next) {
+    aRmcd(req.body.id)
+    .then(() => res.json({}))
+    .then(console.log('Removed'))   
+    .catch(err => next(err));
+}
+
+async function aRmcd(id){
+    await Cd.findByIdAndRemove(id);
+}
+
